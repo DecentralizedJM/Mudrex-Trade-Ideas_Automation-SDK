@@ -1,0 +1,19 @@
+# Core dependencies
+websockets==14.1
+mudrex-trading-sdk==1.0.8
+toml==0.10.2
+click==8.1.8
+pydantic==2.10.6
+python-dotenv==1.0.1
+
+# Async support
+aiofiles==24.1.0
+httpx==0.28.1
+
+# Logging
+rich==13.9.4
+colorlog==6.9.0
+
+# Development
+pytest==8.3.4
+pytest-asyncio==0.25.2
