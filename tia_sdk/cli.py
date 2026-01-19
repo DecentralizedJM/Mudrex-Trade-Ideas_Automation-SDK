@@ -67,7 +67,7 @@ def main():
 @main.command()
 @click.option('--output', '-o', default='config.toml', help='Output config file path')
 def init(output):
-    """Generate configuration file."""
+    """Generate configuration file (advanced users)."""
     try:
         if Path(output).exists():
             if not click.confirm(f'{output} already exists. Overwrite?'):
@@ -79,9 +79,124 @@ def init(output):
         console.print("\n[bold]Next steps:[/bold]")
         console.print(f"1. Edit {output} with your credentials")
         console.print("2. Run: signal-sdk start")
+        console.print("\n[dim]Tip: Use 'signal-sdk setup' for interactive configuration[/dim]")
     
     except Exception as e:
         console.print(f"[red]❌ Error: {e}[/red]")
+        sys.exit(1)
+
+
+@main.command()
+@click.option('--output', '-o', default='config.toml', help='Config file path')
+def setup(output):
+    """Interactive setup - easiest way to get started!"""
+    try:
+        console.print("[bold green]🚀 Mudrex Signal Automator - Setup[/bold green]\n")
+        
+        # Check if config exists
+        if Path(output).exists():
+            if not click.confirm(f'{output} already exists. Overwrite?'):
+                console.print("[yellow]Setup cancelled[/yellow]")
+                return
+        
+        # Import constants for broadcaster config
+        from .constants import BROADCASTER_URL, BROADCASTER_API_SECRET
+        
+        console.print("[bold]Mudrex API Credentials[/bold]")
+        console.print("[dim]Get these from Mudrex Settings → API Management[/dim]\n")
+        
+        # Prompt for Mudrex credentials
+        mudrex_api_key = click.prompt("🔑 Mudrex API Key", type=str)
+        mudrex_api_secret = click.prompt("🔑 Mudrex API Secret", type=str, hide_input=True)
+        
+        console.print("\n[bold]Trading Parameters[/bold]")
+        trade_amount = click.prompt("💰 Trade Amount per Signal (USDT)", type=float, default=50.0)
+        max_leverage = click.prompt("⚡ Maximum Leverage", type=int, default=10)
+        
+        # Optional: Telegram ID for notifications
+        console.print("\n[bold]Optional Settings[/bold]")
+        telegram_id = click.prompt("📱 Telegram ID (for notifications, optional)", type=int, default=0)
+        
+        # Generate client ID
+        import uuid
+        client_id = f"sdk-{uuid.uuid4().hex[:8]}"
+        
+        # Create config
+        import toml
+        config_data = {
+            "broadcaster": {
+                "url": BROADCASTER_URL,
+                "api_secret": BROADCASTER_API_SECRET,
+                "client_id": client_id,
+                "telegram_id": telegram_id if telegram_id > 0 else None
+            },
+            "mudrex": {
+                "api_key": mudrex_api_key,
+                "api_secret": mudrex_api_secret
+            },
+            "trading": {
+                "enabled": True,
+                "trade_amount_usdt": trade_amount,
+                "max_leverage": max_leverage,
+                "min_order_value": 8.0,
+                "auto_execute": True
+            },
+            "risk": {
+                "max_daily_trades": 20,
+                "max_open_positions": 5,
+                "stop_on_daily_loss": 1000.0,
+                "min_balance": 100.0
+            },
+            "logging": {
+                "level": "INFO",
+                "file": "signal_sdk.log",
+                "console": True,
+                "rotate": True,
+                "max_bytes": 10485760,
+                "backup_count": 5
+            }
+        }
+        
+        # Save config
+        with open(output, 'w') as f:
+            toml.dump(config_data, f)
+        
+        console.print(f"\n[green]✅ Configuration saved to {output}[/green]")
+        
+        # Test connection
+        console.print("\n[bold]Testing connection...[/bold]")
+        
+        async def test_conn():
+            try:
+                cfg = Config(output)
+                from .client import SignalClient
+                client = SignalClient(cfg)
+                
+                connected = await client.connect()
+                if connected:
+                    await client.disconnect()
+                    return True
+                return False
+            except:
+                return False
+        
+        if asyncio.run(test_conn()):
+            console.print("[green]✅ Connection successful![/green]")
+        else:
+            console.print("[yellow]⚠️  Could not connect to signal provider[/yellow]")
+            console.print("[dim]This is normal if the service is not running yet[/dim]")
+        
+        console.print("\n[bold green]🎉 Setup complete![/bold green]")
+        console.print("\n[bold]Next step:[/bold]")
+        console.print("  [cyan]signal-sdk start[/cyan]")
+        console.print("\n[dim]Your configuration is saved in config.toml[/dim]")
+    
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Setup cancelled[/yellow]")
+        sys.exit(0)
+    
+    except Exception as e:
+        console.print(f"\n[red]❌ Setup failed: {e}[/red]")
         sys.exit(1)
 
 

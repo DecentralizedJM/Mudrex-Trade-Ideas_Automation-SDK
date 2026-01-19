@@ -18,55 +18,50 @@ Install the SDK on your machine to receive real-time trade ideas and execute the
 ### Installation
 
 ```bash
-pip install mudrex-signal-automator
+pip install git+https://github.com/DecentralizedJM/Mudrex-Trade-Ideas_Automation-SDK.git
 ```
 
-Or install from source:
+### Interactive Setup (Recommended)
+
+**Just answer a few questions and you're ready!**
 
 ```bash
-git clone <repository-url>
-cd Mudrex-Trade-Ideas_Automation-SDK
-pip install -e .
+signal-sdk setup
 ```
 
-### Setup
+**You'll be asked for:**
+- 🔑 Your Mudrex API Key
+- 🔑 Your Mudrex API Secret
+- 💰 Trade Amount (default: 50 USDT)
+- ⚡ Max Leverage (default: 10x)
+- 📱 Telegram ID (optional, for notifications)
 
-**1. Generate configuration file:**
-```bash
-signal-sdk init
-```
+**That's it!** The SDK is automatically configured and ready.
 
-**2. Edit your config** (`config.toml`):
-```toml
-[broadcaster]
-url = "wss://your-signal-provider-url/ws"
-api_secret = "your_access_secret"
+### Start Receiving Signals
 
-[mudrex]
-api_key = "your_mudrex_api_key"
-api_secret = "your_mudrex_api_secret"
-
-[trading]
-enabled = true
-trade_amount_usdt = 50.0
-max_leverage = 10
-```
-
-**3. Start receiving signals:**
 ```bash
 signal-sdk start
 ```
 
-That's it! The SDK will now receive signals and execute trades automatically.
+You'll see:
+```
+🚀 Mudrex Signal Automator v1.0.0
+✅ Connected to signal provider
+
+📡 Signal: LONG BTCUSDT
+✅ Executed: Order placed BUY 0.001 @ 45000
+```
 
 ## 📋 Available Commands
 
 ```bash
-signal-sdk init          # Generate configuration file
+signal-sdk setup         # Interactive setup (easiest!)
 signal-sdk start         # Start receiving and executing signals
 signal-sdk status        # Check your configuration
-signal-sdk test          # Test connection to signal provider
-signal-sdk history       # View trade execution history
+signal-sdk test          # Test connection
+signal-sdk init          # Generate config file (advanced)
+signal-sdk history       # View trade history (coming soon)
 ```
 
 ## 🔧 Configuration
