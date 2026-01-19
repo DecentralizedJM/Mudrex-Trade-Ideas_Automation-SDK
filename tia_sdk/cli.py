@@ -60,7 +60,7 @@ def setup_logging(config: Config):
 @click.group()
 @click.version_option(version="1.0.0")
 def main():
-    """TIA Signal Automator SDK - Local execution for Mudrex signals."""
+    """Mudrex Signal Automator - Receive and execute live trading signals."""
     pass
 
 
@@ -78,7 +78,7 @@ def init(output):
         console.print(f"[green]✅ Config generated: {output}[/green]")
         console.print("\n[bold]Next steps:[/bold]")
         console.print(f"1. Edit {output} with your credentials")
-        console.print("2. Run: tia-sdk start")
+        console.print("2. Run: signal-sdk start")
     
     except Exception as e:
         console.print(f"[red]❌ Error: {e}[/red]")
@@ -104,8 +104,8 @@ def start(config):
         # Setup logging
         setup_logging(cfg)
         
-        console.print("[bold green]🚀 TIA Signal Automator SDK v1.0.0[/bold green]")
-        console.print(f"[dim]Client ID: {cfg.broadcaster.client_id}[/dim]\n")
+        console.print("[bold green]🚀 Mudrex Signal Automator v1.0.0[/bold green]")
+        console.print(f"[dim]Connected as: {cfg.broadcaster.client_id}[/dim]\n")
         
         # Create components
         executor = TradeExecutor(cfg)
@@ -204,7 +204,7 @@ def status(config):
     
     except FileNotFoundError:
         console.print(f"[red]❌ Config file not found: {config}[/red]")
-        console.print("[dim]Run 'tia-sdk init' to create one[/dim]")
+        console.print("[dim]Run 'signal-sdk init' to create one[/dim]")
         sys.exit(1)
     
     except Exception as e:

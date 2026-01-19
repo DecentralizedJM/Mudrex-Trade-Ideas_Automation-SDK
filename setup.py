@@ -11,10 +11,10 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
     requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
 
 setup(
-    name="tia-signal-automator",
+    name="mudrex-signal-automator",
     version="1.0.0",
-    author="DecentralizedJM",
-    description="Local execution SDK for automated signal trading on Mudrex",
+    author="Trade Ideas Automation Service",
+    description="Receive live trading signals and execute automatically on Mudrex",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/DecentralizedJM/Mudrex-Trade-Ideas_Automation-SDK",
@@ -31,7 +31,7 @@ setup(
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "tia-sdk=tia_sdk.cli:main",
+            "signal-sdk=tia_sdk.cli:main",
         ],
     },
     include_package_data=True,

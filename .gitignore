@@ -43,7 +43,7 @@ config.toml
 # Logs
 *.log
 logs/
-tia_sdk.log
+signal_sdk.log
 
 # Trade history
 trade_history.json

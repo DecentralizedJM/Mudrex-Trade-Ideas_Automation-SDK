@@ -1,4 +1,4 @@
-# TIA Signal Automator SDK Configuration
+# Mudrex Signal Automator Configuration
 # Copy this file to config.toml and fill in your details
 
 [broadcaster]
@@ -54,7 +54,7 @@ min_balance = 100.0
 level = "INFO"
 
 # Log file path
-file = "tia_sdk.log"
+file = "signal_sdk.log"
 
 # Also log to console
 console = true

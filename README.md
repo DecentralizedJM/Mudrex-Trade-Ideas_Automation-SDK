@@ -1,4 +1,4 @@
-# Mudrex Trade Ideas Automation SDK
+# Mudrex Signal Automator
 
 **Receive live trading signals and execute automatically on Mudrex**
 
@@ -9,7 +9,6 @@ Install the SDK on your machine to receive real-time trade ideas and execute the
 - ✅ **Real-time Signal Reception** - Get trade ideas as they're published
 - ✅ **Automatic Execution** - Execute trades instantly on Mudrex
 - ✅ **Your Keys, Your Control** - API keys never leave your machine
-- ✅ **Risk Management** - Built-in safety limits and controls
 - ✅ **Position Management** - Automatic SL/TP, closes, and updates
 - ✅ **Simple Setup** - Install, configure, and start in minutes
 - ✅ **Comprehensive Logging** - Track all signals and executions
@@ -19,7 +18,7 @@ Install the SDK on your machine to receive real-time trade ideas and execute the
 ### Installation
 
 ```bash
-pip install tia-signal-automator
+pip install mudrex-signal-automator
 ```
 
 Or install from source:
@@ -34,7 +33,7 @@ pip install -e .
 
 **1. Generate configuration file:**
 ```bash
-tia-sdk init
+signal-sdk init
 ```
 
 **2. Edit your config** (`config.toml`):
@@ -55,7 +54,7 @@ max_leverage = 10
 
 **3. Start receiving signals:**
 ```bash
-tia-sdk start
+signal-sdk start
 ```
 
 That's it! The SDK will now receive signals and execute trades automatically.
@@ -63,11 +62,11 @@ That's it! The SDK will now receive signals and execute trades automatically.
 ## 📋 Available Commands
 
 ```bash
-tia-sdk init          # Generate configuration file
-tia-sdk start         # Start receiving and executing signals
-tia-sdk status        # Check your configuration
-tia-sdk test          # Test connection to signal provider
-tia-sdk history       # View trade execution history
+signal-sdk init          # Generate configuration file
+signal-sdk start         # Start receiving and executing signals
+signal-sdk status        # Check your configuration
+signal-sdk test          # Test connection to signal provider
+signal-sdk history       # View trade execution history
 ```
 
 ## 🔧 Configuration
@@ -96,22 +95,12 @@ max_leverage = 10             # Maximum leverage to use
 auto_execute = true           # Execute automatically
 ```
 
-### Risk Management Settings
-
-```toml
-[risk]
-max_daily_trades = 20          # Max trades per day
-max_open_positions = 5         # Max simultaneous positions
-stop_on_daily_loss = 1000.0    # Stop if daily loss exceeds (USDT)
-min_balance = 100.0            # Minimum balance required
-```
-
 ### Logging Configuration
 
 ```toml
 [logging]
 level = "INFO"                 # DEBUG, INFO, WARNING, ERROR
-file = "tia_sdk.log"           # Log file path
+file = "signal_sdk.log"        # Log file path
 console = true                 # Also print to console
 rotate = true                  # Rotate log files
 ```
@@ -135,7 +124,7 @@ MAX_LEVERAGE=10
 
 1. **SDK connects** to the signal provider via secure WebSocket
 2. **Receives signals** in real-time as they're published
-3. **Validates signal** and checks risk limits
+3. **Validates signal** and checks safety limits
 4. **Executes trade** on your Mudrex account
 5. **Sets SL/TP** automatically if provided
 6. **Logs result** for your records
@@ -146,17 +135,6 @@ MAX_LEVERAGE=10
 - **CLOSE_SIGNAL** - Closes position (full or partial)
 - **EDIT_SLTP** - Updates stop loss and take profit
 - **UPDATE_LEVERAGE** - Modifies position leverage
-
-### Risk Protection
-
-The SDK includes multiple safety features:
-
-- ✅ Daily trade limits
-- ✅ Maximum open positions limit
-- ✅ Stop trading on daily loss threshold
-- ✅ Minimum balance checks
-- ✅ Leverage limits
-- ✅ Position validation before execution
 
 ## 🔒 Security
 
@@ -179,12 +157,12 @@ The SDK includes multiple safety features:
 ### Start in Foreground (see output)
 
 ```bash
-tia-sdk start
+signal-sdk start
 ```
 
 You'll see:
 ```
-🚀 TIA Signal Automator SDK v1.0.0
+🚀 Mudrex Signal Automator v1.0.0
 ✅ Connected to signal provider
 
 📡 Signal: LONG BTCUSDT
@@ -197,7 +175,7 @@ You'll see:
 ### Check Configuration
 
 ```bash
-tia-sdk status
+signal-sdk status
 ```
 
 Shows your current settings and validates configuration.
@@ -205,7 +183,7 @@ Shows your current settings and validates configuration.
 ### Test Connection
 
 ```bash
-tia-sdk test
+signal-sdk test
 ```
 
 Verifies connection to signal provider without starting trades.
@@ -215,14 +193,14 @@ Verifies connection to signal provider without starting trades.
 ### Connection Issues
 
 **Problem:** Cannot connect to signal provider
-- Verify `broadcaster.url` is correct
-- Check `broadcaster.api_secret` is valid
+- Verify `url` is correct in config
+- Check `api_secret` is valid
 - Ensure internet connection is stable
 - Check firewall settings
 
 **Test connection:**
 ```bash
-tia-sdk test
+signal-sdk test
 ```
 
 ### Trade Execution Issues
@@ -235,20 +213,20 @@ tia-sdk test
 
 **Check configuration:**
 ```bash
-tia-sdk status
+signal-sdk status
 ```
 
 ### View Logs
 
 ```bash
 # Real-time log monitoring
-tail -f tia_sdk.log
+tail -f signal_sdk.log
 
 # Search for errors
-grep ERROR tia_sdk.log
+grep ERROR signal_sdk.log
 
 # View recent activity
-tail -n 50 tia_sdk.log
+tail -n 50 signal_sdk.log
 ```
 
 ## ⚙️ Advanced Configuration
@@ -259,27 +237,27 @@ Run multiple SDK instances with different configs:
 
 ```bash
 # Instance 1 - Conservative
-tia-sdk start --config config_conservative.toml
+signal-sdk start --config config_conservative.toml
 
 # Instance 2 - Aggressive
-tia-sdk start --config config_aggressive.toml
+signal-sdk start --config config_aggressive.toml
 ```
 
 ### Auto-start on System Boot
 
 **Linux (systemd):**
 
-Create `/etc/systemd/system/tia-sdk.service`:
+Create `/etc/systemd/system/signal-sdk.service`:
 ```ini
 [Unit]
-Description=TIA Signal Automator SDK
+Description=Mudrex Signal Automator
 After=network.target
 
 [Service]
 Type=simple
 User=youruser
 WorkingDirectory=/path/to/sdk
-ExecStart=/usr/local/bin/tia-sdk start
+ExecStart=/usr/local/bin/signal-sdk start
 Restart=always
 
 [Install]
@@ -288,8 +266,8 @@ WantedBy=multi-user.target
 
 Enable:
 ```bash
-sudo systemctl enable tia-sdk
-sudo systemctl start tia-sdk
+sudo systemctl enable signal-sdk
+sudo systemctl start signal-sdk
 ```
 
 ## 📊 Performance & Reliability
@@ -305,7 +283,7 @@ sudo systemctl start tia-sdk
 Keep your SDK up to date:
 
 ```bash
-pip install --upgrade tia-signal-automator
+pip install --upgrade mudrex-signal-automator
 ```
 
 Or from source:
@@ -320,7 +298,7 @@ pip install -e .
 1. **Start Small** - Begin with small trade amounts to test
 2. **Monitor Logs** - Regularly check logs for issues
 3. **Keep Balance Funded** - Maintain adequate balance for trades
-4. **Set Appropriate Limits** - Configure risk limits for your strategy
+4. **Set Appropriate Limits** - Configure limits for your strategy
 5. **Regular Backups** - Backup your config and logs
 6. **Update Regularly** - Keep SDK updated for latest features
 
@@ -334,4 +312,4 @@ For issues, questions, or feature requests, contact your signal provider or SDK 
 
 ---
 
-**Ready to start?** Run `tia-sdk init` to get started!
+**Ready to start?** Run `signal-sdk init` to get started!

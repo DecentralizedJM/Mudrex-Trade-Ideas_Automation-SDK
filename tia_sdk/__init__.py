@@ -1,11 +1,11 @@
 """
-TIA Signal Automator SDK
+Mudrex Signal Automator
 
-Local execution SDK for automated signal trading on Mudrex.
+Receive live trading signals and execute automatically on Mudrex.
 """
 
 __version__ = "1.0.0"
-__author__ = "DecentralizedJM"
+__author__ = "Trade Ideas Automation Service"
 
 from .client import SignalClient
 from .executor import TradeExecutor
