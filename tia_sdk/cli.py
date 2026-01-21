@@ -140,8 +140,8 @@ def setup(output):
         console.print(f"[green]✅ Credentials valid! Balance: {result:.2f} USDT[/green]")
         
         console.print("\n[bold]Trading Parameters[/bold]")
-        trade_amount = click.prompt("💰 Trade Amount per Signal (USDT)", type=float, default=50.0)
-        max_leverage = click.prompt("⚡ Maximum Leverage", type=int, default=10)
+        trade_amount = click.prompt("💰 Trade Amount per Signal (USDT)", type=float, default=2.0)
+        max_leverage = click.prompt("⚡ Maximum Leverage", type=int, default=25)
         
         # Optional: Telegram ID for notifications
         console.print("\n[bold]Optional Settings[/bold]")
@@ -166,14 +166,14 @@ def setup(output):
                 "enabled": True,
                 "trade_amount_usdt": trade_amount,
                 "max_leverage": max_leverage,
-                "min_order_value": 8.0,
+                "min_order_value": 1.0,
                 "auto_execute": True
             },
             "risk": {
-                "max_daily_trades": 20,
-                "max_open_positions": 5,
-                "stop_on_daily_loss": 1000.0,
-                "min_balance": 100.0
+                "max_daily_trades": 50,
+                "max_open_positions": 10,
+                "stop_on_daily_loss": 0.0,
+                "min_balance": 1.0
             },
             "logging": {
                 "level": "INFO",

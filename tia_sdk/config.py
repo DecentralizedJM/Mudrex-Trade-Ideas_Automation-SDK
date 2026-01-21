@@ -28,18 +28,18 @@ class MudrexConfig(BaseModel):
 class TradingConfig(BaseModel):
     """Trading parameters."""
     enabled: bool = Field(True, description="Enable trade execution")
-    trade_amount_usdt: float = Field(50.0, description="Trade amount per signal")
-    max_leverage: int = Field(10, description="Maximum leverage")
-    min_order_value: float = Field(8.0, description="Minimum order value")
+    trade_amount_usdt: float = Field(2.0, description="Trade amount per signal")
+    max_leverage: int = Field(25, description="Maximum leverage")
+    min_order_value: float = Field(1.0, description="Minimum order value")
     auto_execute: bool = Field(True, description="Auto-execute trades")
 
 
 class RiskConfig(BaseModel):
     """Risk management parameters."""
-    max_daily_trades: int = Field(20, description="Max trades per day")
-    max_open_positions: int = Field(5, description="Max open positions")
-    stop_on_daily_loss: float = Field(1000.0, description="Stop on daily loss (0=disabled)")
-    min_balance: float = Field(100.0, description="Minimum balance to trade")
+    max_daily_trades: int = Field(50, description="Max trades per day")
+    max_open_positions: int = Field(10, description="Max open positions")
+    stop_on_daily_loss: float = Field(0.0, description="Stop on daily loss (0=disabled)")
+    min_balance: float = Field(1.0, description="Minimum balance to trade")
 
 
 class LoggingConfig(BaseModel):
@@ -104,9 +104,9 @@ class Config:
         
         self.trading = TradingConfig(
             enabled=os.getenv("TRADING_ENABLED", "true").lower() == "true",
-            trade_amount_usdt=float(os.getenv("TRADE_AMOUNT", "50.0")),
-            max_leverage=int(os.getenv("MAX_LEVERAGE", "10")),
-            min_order_value=float(os.getenv("MIN_ORDER_VALUE", "8.0")),
+            trade_amount_usdt=float(os.getenv("TRADE_AMOUNT", "2.0")),
+            max_leverage=int(os.getenv("MAX_LEVERAGE", "25")),
+            min_order_value=float(os.getenv("MIN_ORDER_VALUE", "1.0")),
             auto_execute=os.getenv("AUTO_EXECUTE", "true").lower() == "true"
         )
         
@@ -154,16 +154,16 @@ class Config:
             },
             "trading": {
                 "enabled": True,
-                "trade_amount_usdt": 50.0,
-                "max_leverage": 10,
-                "min_order_value": 8.0,
+                "trade_amount_usdt": 2.0,
+                "max_leverage": 25,
+                "min_order_value": 1.0,
                 "auto_execute": True
             },
             "risk": {
-                "max_daily_trades": 20,
-                "max_open_positions": 5,
-                "stop_on_daily_loss": 1000.0,
-                "min_balance": 100.0
+                "max_daily_trades": 50,
+                "max_open_positions": 10,
+                "stop_on_daily_loss": 0.0,
+                "min_balance": 1.0
             },
             "logging": {
                 "level": "INFO",
