@@ -100,7 +100,7 @@ def setup(output):
                 return
         
         # Import constants for broadcaster config
-        from .constants import BROADCASTER_URL, BROADCASTER_API_SECRET
+        from .constants import BROADCASTER_URL
         
         console.print("[bold]Mudrex API Credentials[/bold]")
         console.print("[dim]Get these from Mudrex Settings → API Management[/dim]\n")
@@ -126,7 +126,6 @@ def setup(output):
         config_data = {
             "broadcaster": {
                 "url": BROADCASTER_URL,
-                "api_secret": BROADCASTER_API_SECRET,
                 "client_id": client_id,
                 "telegram_id": telegram_id if telegram_id > 0 else None
             },

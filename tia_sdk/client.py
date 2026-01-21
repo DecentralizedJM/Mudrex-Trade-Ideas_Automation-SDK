@@ -38,14 +38,9 @@ class SignalClient:
         try:
             logger.info(f"Connecting to broadcaster: {self.config.broadcaster.url}")
             
-            # Add API secret to connection headers
-            headers = {
-                "X-API-Secret": self.config.broadcaster.api_secret
-            }
-            
+            # Public service - no authentication required
             self.ws = await websockets.connect(
-                self.config.broadcaster.url,
-                extra_headers=headers
+                self.config.broadcaster.url
             )
             
             logger.info("✅ Connected to broadcaster")

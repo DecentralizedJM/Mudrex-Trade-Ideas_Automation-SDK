@@ -16,12 +16,11 @@ fi
 
 RAILWAY_URL="$1"
 WEBSOCKET_URL="wss://${RAILWAY_URL}/ws"
-API_SECRET="eeojo2WLw3b4TC65K6WQXwp84f8OBpzmeQWmYb2rQB4"
 
 echo "📝 Updating SDK broadcaster configuration..."
 echo ""
 echo "Broadcaster URL: ${WEBSOCKET_URL}"
-echo "API Secret: ${API_SECRET}"
+echo "Note: This is a PUBLIC service - no authentication required!"
 echo ""
 
 # Update constants.py
@@ -31,8 +30,8 @@ Constants - Broadcaster connection details (pre-configured).
 """
 
 # Broadcaster connection (configured by service provider)
+# This is a PUBLIC service - anyone can connect via SDK
 BROADCASTER_URL = "${WEBSOCKET_URL}"
-BROADCASTER_API_SECRET = "${API_SECRET}"
 
 # These are pre-configured and hidden from users
 # Users only need to provide their Mudrex credentials

@@ -3,10 +3,8 @@
 
 [broadcaster]
 # Broadcaster WebSocket URL
+# This is a PUBLIC service - anyone can connect via SDK
 url = "wss://your-broadcaster.railway.app/ws"
-
-# API secret for authentication (shared with broadcaster admin)
-api_secret = "your_api_secret_here"
 
 # Unique client ID (auto-generated if not provided)
 # client_id = "my-trading-bot-1"

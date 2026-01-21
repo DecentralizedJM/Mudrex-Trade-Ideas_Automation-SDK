@@ -16,7 +16,6 @@ load_dotenv()
 class BroadcasterConfig(BaseModel):
     """Broadcaster connection configuration."""
     url: str = Field(..., description="WebSocket URL of broadcaster")
-    api_secret: str = Field(..., description="API secret for authentication")
     client_id: Optional[str] = Field(None, description="Unique client ID")
     telegram_id: Optional[int] = Field(None, description="Telegram ID for notifications")
 
@@ -88,7 +87,6 @@ class Config:
         """Load configuration from environment variables."""
         self.broadcaster = BroadcasterConfig(
             url=os.getenv("BROADCASTER_URL", ""),
-            api_secret=os.getenv("BROADCASTER_API_SECRET", ""),
             client_id=os.getenv("CLIENT_ID", f"sdk-{uuid.uuid4().hex[:8]}"),
             telegram_id=int(os.getenv("TELEGRAM_ID")) if os.getenv("TELEGRAM_ID") else None
         )
@@ -123,8 +121,6 @@ class Config:
         # Broadcaster validation
         if not self.broadcaster.url:
             errors.append("Broadcaster URL is required")
-        if not self.broadcaster.api_secret:
-            errors.append("Broadcaster API secret is required")
         
         # Mudrex validation
         if not self.mudrex.api_key:
@@ -144,7 +140,6 @@ class Config:
         example = {
             "broadcaster": {
                 "url": "wss://your-broadcaster.railway.app/ws",
-                "api_secret": "your_api_secret_here",
                 "client_id": "my-trading-bot-1",
                 "telegram_id": 123456789
             },
