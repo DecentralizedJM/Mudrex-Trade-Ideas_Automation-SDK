@@ -85,8 +85,10 @@ class Config:
     
     def _load_from_env(self):
         """Load configuration from environment variables."""
+        from .constants import BROADCASTER_URL
+        
         self.broadcaster = BroadcasterConfig(
-            url=os.getenv("BROADCASTER_URL", ""),
+            url=os.getenv("BROADCASTER_URL", BROADCASTER_URL),
             client_id=os.getenv("CLIENT_ID", f"sdk-{uuid.uuid4().hex[:8]}"),
             telegram_id=int(os.getenv("TELEGRAM_ID")) if os.getenv("TELEGRAM_ID") else None
         )
