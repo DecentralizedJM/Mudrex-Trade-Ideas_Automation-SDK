@@ -6,7 +6,7 @@ import logging
 import asyncio
 from typing import Optional
 from datetime import datetime, timedelta
-from mudrex_trading_sdk import MudrexClient
+from mudrex import MudrexClient
 
 from .config import Config
 from .models import (
