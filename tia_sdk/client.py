@@ -36,12 +36,13 @@ class SignalClient:
     async def connect(self):
         """Connect to broadcaster WebSocket."""
         try:
-            logger.info(f"Connecting to broadcaster: {self.config.broadcaster.url}")
+            # Build WebSocket URL with client_id as query parameter
+            ws_url = f"{self.config.broadcaster.url}?client_id={self.config.broadcaster.client_id}"
+            
+            logger.info(f"Connecting to broadcaster: {ws_url}")
             
             # Public service - no authentication required
-            self.ws = await websockets.connect(
-                self.config.broadcaster.url
-            )
+            self.ws = await websockets.connect(ws_url)
             
             logger.info("✅ Connected to broadcaster")
             
