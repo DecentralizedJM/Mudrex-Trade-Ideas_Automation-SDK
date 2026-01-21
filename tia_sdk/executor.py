@@ -72,7 +72,7 @@ class TradeExecutor:
         # Check balance using wallet.get_futures_balance()
         try:
             balance = await asyncio.to_thread(self.client.wallet.get_futures_balance)
-            available_balance = float(balance.available_balance)
+            available_balance = float(balance.available)  # mudrex library uses .available
             
             if available_balance < self.config.risk.min_balance:
                 return False, f"Balance too low ({available_balance:.2f} < {self.config.risk.min_balance} USDT)"
@@ -389,7 +389,7 @@ class TradeExecutor:
         """
         try:
             balance = await asyncio.to_thread(self.client.wallet.get_futures_balance)
-            available = float(balance.available_balance)
+            available = float(balance.available)  # mudrex library uses .available
             return True, f"Valid! Balance: {available:.2f} USDT"
         except Exception as e:
             error_msg = str(e)

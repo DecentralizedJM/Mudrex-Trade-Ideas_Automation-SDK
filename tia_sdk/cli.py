@@ -117,7 +117,7 @@ def setup(output):
                 from mudrex import MudrexClient
                 client = MudrexClient(api_secret=mudrex_api_secret)
                 balance = await asyncio.to_thread(client.wallet.get_futures_balance)
-                return True, float(balance.available_balance)
+                return True, float(balance.available)  # mudrex library uses .available
             except Exception as e:
                 error_msg = str(e)
                 if "401" in error_msg or "Unauthorized" in error_msg.lower():
