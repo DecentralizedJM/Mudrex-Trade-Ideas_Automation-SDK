@@ -1,5 +1,5 @@
 """
-CLI interface for TIA Signal Automator SDK.
+CLI interface for Mudrex Signal Automator SDK.
 """
 
 import click
@@ -103,11 +103,41 @@ def setup(output):
         from .constants import BROADCASTER_URL
         
         console.print("[bold]Mudrex API Credentials[/bold]")
-        console.print("[dim]Get these from Mudrex Settings → API Management[/dim]\n")
+        console.print("[dim]Get these from Mudrex Settings → API Management[/dim]")
+        console.print("[dim]Required permissions: Futures Trading[/dim]\n")
         
         # Prompt for Mudrex credentials
-        mudrex_api_key = click.prompt("🔑 Mudrex API Key", type=str)
         mudrex_api_secret = click.prompt("🔑 Mudrex API Secret", type=str, hide_input=True)
+        
+        # Validate credentials immediately
+        console.print("\n[dim]Validating credentials...[/dim]")
+        
+        async def validate_creds():
+            try:
+                from mudrex import MudrexClient
+                client = MudrexClient(api_secret=mudrex_api_secret)
+                balance = await asyncio.to_thread(client.wallet.get_futures_balance)
+                return True, float(balance.available_balance)
+            except Exception as e:
+                error_msg = str(e)
+                if "401" in error_msg or "Unauthorized" in error_msg.lower():
+                    return False, "Invalid API credentials (401 Unauthorized)"
+                elif "403" in error_msg or "Forbidden" in error_msg.lower():
+                    return False, "API key lacks 'Futures Trading' permission (403 Forbidden)"
+                else:
+                    return False, f"API error: {error_msg}"
+        
+        valid, result = asyncio.run(validate_creds())
+        
+        if not valid:
+            console.print(f"\n[red]❌ Credential validation failed: {result}[/red]")
+            console.print("\n[bold]Troubleshooting:[/bold]")
+            console.print("• Double-check your API Secret from Mudrex")
+            console.print("• Ensure your API key has 'Futures Trading' permission enabled")
+            console.print("• Try generating a new API key if the issue persists")
+            sys.exit(1)
+        
+        console.print(f"[green]✅ Credentials valid! Balance: {result:.2f} USDT[/green]")
         
         console.print("\n[bold]Trading Parameters[/bold]")
         trade_amount = click.prompt("💰 Trade Amount per Signal (USDT)", type=float, default=50.0)
@@ -130,7 +160,6 @@ def setup(output):
                 "telegram_id": telegram_id if telegram_id > 0 else None
             },
             "mudrex": {
-                "api_key": mudrex_api_key,
                 "api_secret": mudrex_api_secret
             },
             "trading": {
@@ -162,8 +191,8 @@ def setup(output):
         
         console.print(f"\n[green]✅ Configuration saved to {output}[/green]")
         
-        # Test connection
-        console.print("\n[bold]Testing connection...[/bold]")
+        # Test broadcaster connection
+        console.print("\n[bold]Testing broadcaster connection...[/bold]")
         
         async def test_conn():
             try:
@@ -180,10 +209,10 @@ def setup(output):
                 return False
         
         if asyncio.run(test_conn()):
-            console.print("[green]✅ Connection successful![/green]")
+            console.print("[green]✅ Broadcaster connection successful![/green]")
         else:
-            console.print("[yellow]⚠️  Could not connect to signal provider[/yellow]")
-            console.print("[dim]This is normal if the service is not running yet[/dim]")
+            console.print("[yellow]⚠️  Could not connect to broadcaster[/yellow]")
+            console.print("[dim]This may be normal if the service is starting up[/dim]")
         
         console.print("\n[bold green]🎉 Setup complete![/bold green]")
         console.print("\n[bold]Next step:[/bold]")
@@ -205,7 +234,18 @@ def start(config):
     """Start receiving and executing signals."""
     try:
         # Load config
-        cfg = Config(config)
+        try:
+            cfg = Config(config)
+        except FileNotFoundError:
+            console.print(f"[red]❌ Config file not found: {config}[/red]")
+            console.print("\n[bold]Quick fix:[/bold]")
+            console.print("  [cyan]signal-sdk setup[/cyan]")
+            sys.exit(1)
+        except Exception as e:
+            console.print(f"[red]❌ Config Error: {e}[/red]")
+            console.print("\n[bold]Run setup to fix:[/bold]")
+            console.print("  [cyan]signal-sdk setup[/cyan]")
+            sys.exit(1)
         
         # Validate config
         is_valid, errors = cfg.validate()
@@ -213,6 +253,8 @@ def start(config):
             console.print("[red]❌ Configuration errors:[/red]")
             for error in errors:
                 console.print(f"  • {error}")
+            console.print("\n[bold]Run setup to fix:[/bold]")
+            console.print("  [cyan]signal-sdk setup[/cyan]")
             sys.exit(1)
         
         # Setup logging
@@ -221,8 +263,29 @@ def start(config):
         console.print("[bold green]🚀 Mudrex Signal Automator v1.0.0[/bold green]")
         console.print(f"[dim]Connected as: {cfg.broadcaster.client_id}[/dim]\n")
         
-        # Create components
-        executor = TradeExecutor(cfg)
+        # Validate Mudrex credentials before starting
+        console.print("[dim]Validating Mudrex credentials...[/dim]")
+        
+        try:
+            executor = TradeExecutor(cfg)
+            
+            async def validate_api():
+                return await executor.validate_credentials()
+            
+            valid, msg = asyncio.run(validate_api())
+            
+            if not valid:
+                console.print(f"[red]❌ Mudrex API Error: {msg}[/red]")
+                console.print("\n[bold]Run 'signal-sdk doctor' to diagnose[/bold]")
+                sys.exit(1)
+            
+            console.print(f"[green]✅ Mudrex API: {msg}[/green]\n")
+        
+        except Exception as e:
+            console.print(f"[red]❌ Failed to initialize: {e}[/red]")
+            sys.exit(1)
+        
+        # Create client
         client = SignalClient(cfg)
         
         # Setup callbacks
@@ -287,6 +350,121 @@ def start(config):
 
 @main.command()
 @click.option('--config', '-c', default='config.toml', help='Config file path')
+def doctor(config):
+    """Diagnose connectivity and configuration issues."""
+    console.print("[bold]🩺 Signal SDK Doctor[/bold]\n")
+    
+    all_ok = True
+    
+    # Check 1: Config file exists
+    console.print("[bold]1. Configuration File[/bold]")
+    if Path(config).exists():
+        console.print(f"   [green]✅ Found: {config}[/green]")
+    else:
+        console.print(f"   [red]❌ Not found: {config}[/red]")
+        console.print("   [dim]Run 'signal-sdk setup' to create one[/dim]")
+        sys.exit(1)
+    
+    # Load config
+    try:
+        cfg = Config(config)
+        console.print("   [green]✅ Config loaded successfully[/green]")
+    except Exception as e:
+        console.print(f"   [red]❌ Failed to load config: {e}[/red]")
+        sys.exit(1)
+    
+    # Check 2: Config validation
+    console.print("\n[bold]2. Configuration Validation[/bold]")
+    is_valid, errors = cfg.validate()
+    if is_valid:
+        console.print("   [green]✅ All required fields present[/green]")
+    else:
+        all_ok = False
+        console.print("   [red]❌ Configuration errors:[/red]")
+        for error in errors:
+            console.print(f"      • {error}")
+    
+    # Check 3: Broadcaster connection
+    console.print("\n[bold]3. Broadcaster Connection[/bold]")
+    console.print(f"   [dim]URL: {cfg.broadcaster.url}[/dim]")
+    
+    async def test_broadcaster():
+        try:
+            client = SignalClient(cfg)
+            connected = await client.connect()
+            if connected:
+                await client.disconnect()
+                return True, "Connected successfully"
+            return False, "Connection failed"
+        except Exception as e:
+            return False, str(e)
+    
+    try:
+        success, msg = asyncio.run(test_broadcaster())
+        if success:
+            console.print(f"   [green]✅ {msg}[/green]")
+        else:
+            all_ok = False
+            console.print(f"   [red]❌ {msg}[/red]")
+    except Exception as e:
+        all_ok = False
+        console.print(f"   [red]❌ Error: {e}[/red]")
+    
+    # Check 4: Mudrex API
+    console.print("\n[bold]4. Mudrex API[/bold]")
+    
+    if not cfg.mudrex.api_secret:
+        all_ok = False
+        console.print("   [red]❌ API Secret not configured[/red]")
+    else:
+        console.print("   [dim]Testing API credentials...[/dim]")
+        
+        async def test_mudrex():
+            try:
+                executor = TradeExecutor(cfg)
+                return await executor.validate_credentials()
+            except Exception as e:
+                return False, str(e)
+        
+        try:
+            success, msg = asyncio.run(test_mudrex())
+            if success:
+                console.print(f"   [green]✅ {msg}[/green]")
+            else:
+                all_ok = False
+                console.print(f"   [red]❌ {msg}[/red]")
+                
+                # Provide specific troubleshooting
+                if "401" in msg:
+                    console.print("\n   [bold]Troubleshooting:[/bold]")
+                    console.print("   • Double-check your API Secret")
+                    console.print("   • Try regenerating your API key on Mudrex")
+                elif "403" in msg:
+                    console.print("\n   [bold]Troubleshooting:[/bold]")
+                    console.print("   • Enable 'Futures Trading' permission for your API key")
+                    console.print("   • Go to Mudrex → Settings → API Management")
+                elif "405" in msg:
+                    console.print("\n   [bold]Troubleshooting:[/bold]")
+                    console.print("   • This may be a temporary API issue")
+                    console.print("   • Try again in a few minutes")
+        except Exception as e:
+            all_ok = False
+            console.print(f"   [red]❌ Error: {e}[/red]")
+    
+    # Summary
+    console.print("\n" + "=" * 40)
+    if all_ok:
+        console.print("[bold green]✅ All checks passed![/bold green]")
+        console.print("\n[dim]You're ready to start:[/dim]")
+        console.print("  [cyan]signal-sdk start[/cyan]")
+    else:
+        console.print("[bold red]❌ Some checks failed[/bold red]")
+        console.print("\n[dim]Fix the issues above and run doctor again[/dim]")
+        sys.exit(1)
+
+
+@main.command()
+@click.option('--config', '-c', default='config.toml', help='Config file path')
 def status(config):
     """Check SDK configuration and connection status."""
     try:
@@ -318,7 +496,7 @@ def status(config):
     
     except FileNotFoundError:
         console.print(f"[red]❌ Config file not found: {config}[/red]")
-        console.print("[dim]Run 'signal-sdk init' to create one[/dim]")
+        console.print("[dim]Run 'signal-sdk setup' to create one[/dim]")
         sys.exit(1)
     
     except Exception as e:

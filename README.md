@@ -29,10 +29,11 @@ signal-sdk setup
 ```
 
 **You'll be asked for:**
-- 🔑 Mudrex API Key
-- 🔑 Mudrex API Secret  
+- 🔑 Mudrex API Secret (from Mudrex Settings → API Management)
 - 💰 Trade Amount per signal (default: 50 USDT)
 - ⚡ Maximum Leverage (default: 10x)
+
+> **Important:** Your API key must have **"Futures Trading"** permission enabled.
 
 ### 3. Start
 
@@ -48,10 +49,11 @@ signal-sdk start
 
 ```
 🚀 Mudrex Signal Automator v1.0.0
-✅ Connected to signal provider
+✅ Mudrex API: Valid! Balance: 500.00 USDT
+✅ Connected to broadcaster
 
 📡 Signal: LONG BTCUSDT
-✅ Executed: Order placed BUY 0.001 @ 45000
+✅ Executed: Order placed LONG 0.001 @ 45000
 
 📡 Signal: EDIT_SLTP BTCUSDT
 ✅ SL/TP updated
@@ -69,7 +71,8 @@ signal-sdk start
 | `signal-sdk setup` | Interactive configuration (start here!) |
 | `signal-sdk start` | Start receiving signals |
 | `signal-sdk status` | Check your configuration |
-| `signal-sdk test` | Test connection |
+| `signal-sdk test` | Test broadcaster connection |
+| `signal-sdk doctor` | Diagnose all connectivity issues |
 
 ---
 
@@ -96,7 +99,6 @@ After running `signal-sdk setup`, your `config.toml` will be created with:
 
 ```toml
 [mudrex]
-api_key = "your_key"
 api_secret = "your_secret"
 
 [trading]
@@ -112,7 +114,7 @@ You can edit these values anytime by opening `config.toml`.
 ## 📊 How It Works
 
 1. **Signal Arrives** - New trading signal published
-2. **SDK Receives** - Your SDK gets signal in real-time
+2. **SDK Receives** - Your SDK gets signal in real-time via WebSocket
 3. **Validates** - Checks balance and safety limits
 4. **Executes** - Places trade on your Mudrex account
 5. **Manages** - Handles SL/TP, closes, updates automatically
@@ -122,24 +124,76 @@ You can edit these values anytime by opening `config.toml`.
 
 ## 🐛 Troubleshooting
 
-### Can't Connect
+### Run the Doctor
+
+The easiest way to diagnose issues:
 
 ```bash
-signal-sdk test
+signal-sdk doctor
 ```
 
-Check that your internet connection is stable.
+This checks:
+- ✅ Configuration file
+- ✅ Broadcaster connection
+- ✅ Mudrex API credentials
+
+### Common Errors
+
+#### Error 401 - Invalid Credentials
+
+```
+❌ Invalid API credentials (401 Unauthorized)
+```
+
+**Fix:**
+1. Double-check your API Secret from Mudrex
+2. Ensure you're copying the **entire** secret
+3. Try generating a new API key on Mudrex
+
+#### Error 403 - Permission Denied
+
+```
+❌ API key lacks required permissions (403 Forbidden)
+```
+
+**Fix:**
+1. Go to Mudrex → Settings → API Management
+2. Edit your API key
+3. Enable **"Futures Trading"** permission
+4. Save and try again
+
+#### Error 405 - Method Not Allowed
+
+```
+❌ API endpoint error (405 Method Not Allowed)
+```
+
+**Fix:**
+- This is usually a temporary API issue
+- Wait a few minutes and try again
+- If persistent, contact support
+
+#### Can't Connect to Broadcaster
+
+```
+❌ Connection failed
+```
+
+**Fix:**
+1. Check your internet connection
+2. Run `signal-sdk test` to verify
+3. The service may be temporarily down - try again later
 
 ### Trades Not Executing
 
-1. Verify Mudrex API credentials:
+1. Check your configuration:
    ```bash
    signal-sdk status
    ```
 
-2. Check Mudrex account balance
+2. Verify Mudrex account balance is sufficient
 
-3. Review logs:
+3. Review logs for errors:
    ```bash
    tail -f signal_sdk.log
    ```
@@ -174,6 +228,7 @@ pip install --upgrade git+https://github.com/DecentralizedJM/Mudrex-Trade-Ideas_
 - **Monitor Logs** - Check `signal_sdk.log` regularly
 - **Keep Funded** - Maintain adequate balance in Mudrex
 - **Backup Config** - Save your `config.toml` securely
+- **Use Doctor** - Run `signal-sdk doctor` if anything seems wrong
 
 ---
 

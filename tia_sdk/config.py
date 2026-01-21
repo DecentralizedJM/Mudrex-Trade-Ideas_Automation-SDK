@@ -21,8 +21,7 @@ class BroadcasterConfig(BaseModel):
 
 
 class MudrexConfig(BaseModel):
-    """Mudrex API configuration."""
-    api_key: str = Field(..., description="Mudrex API key")
+    """Mudrex API configuration - only api_secret is required."""
     api_secret: str = Field(..., description="Mudrex API secret")
 
 
@@ -46,7 +45,7 @@ class RiskConfig(BaseModel):
 class LoggingConfig(BaseModel):
     """Logging configuration."""
     level: str = Field("INFO", description="Log level")
-    file: str = Field("tia_sdk.log", description="Log file path")
+    file: str = Field("signal_sdk.log", description="Log file path")
     console: bool = Field(True, description="Log to console")
     rotate: bool = Field(True, description="Rotate log files")
     max_bytes: int = Field(10485760, description="Max log file size")
@@ -72,10 +71,16 @@ class Config:
     
     def _load_from_dict(self, data: dict):
         """Load configuration from dictionary."""
+        from .constants import BROADCASTER_URL
+        
         # Generate client_id if not provided
         broadcaster_data = data.get("broadcaster", {})
         if "client_id" not in broadcaster_data or not broadcaster_data["client_id"]:
             broadcaster_data["client_id"] = f"sdk-{uuid.uuid4().hex[:8]}"
+        
+        # Use default broadcaster URL if not provided
+        if "url" not in broadcaster_data or not broadcaster_data["url"]:
+            broadcaster_data["url"] = BROADCASTER_URL
         
         self.broadcaster = BroadcasterConfig(**broadcaster_data)
         self.mudrex = MudrexConfig(**data.get("mudrex", {}))
@@ -94,7 +99,6 @@ class Config:
         )
         
         self.mudrex = MudrexConfig(
-            api_key=os.getenv("MUDREX_API_KEY", ""),
             api_secret=os.getenv("MUDREX_API_SECRET", "")
         )
         
@@ -124,9 +128,7 @@ class Config:
         if not self.broadcaster.url:
             errors.append("Broadcaster URL is required")
         
-        # Mudrex validation
-        if not self.mudrex.api_key:
-            errors.append("Mudrex API key is required")
+        # Mudrex validation - only api_secret is required
         if not self.mudrex.api_secret:
             errors.append("Mudrex API secret is required")
         
@@ -139,14 +141,15 @@ class Config:
     @staticmethod
     def generate_example(output_path: str = "config.example.toml"):
         """Generate example configuration file."""
+        from .constants import BROADCASTER_URL
+        
         example = {
             "broadcaster": {
-                "url": "wss://your-broadcaster.railway.app/ws",
+                "url": BROADCASTER_URL,
                 "client_id": "my-trading-bot-1",
                 "telegram_id": 123456789
             },
             "mudrex": {
-                "api_key": "your_mudrex_api_key",
                 "api_secret": "your_mudrex_api_secret"
             },
             "trading": {
@@ -164,7 +167,7 @@ class Config:
             },
             "logging": {
                 "level": "INFO",
-                "file": "tia_sdk.log",
+                "file": "signal_sdk.log",
                 "console": True,
                 "rotate": True,
                 "max_bytes": 10485760,

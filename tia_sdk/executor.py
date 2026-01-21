@@ -22,8 +22,8 @@ class TradeExecutor:
     
     def __init__(self, config: Config):
         self.config = config
+        # MudrexClient only takes api_secret (not api_key)
         self.client = MudrexClient(
-            api_key=config.mudrex.api_key,
             api_secret=config.mudrex.api_secret
         )
         
@@ -69,9 +69,9 @@ class TradeExecutor:
         if self.config.risk.stop_on_daily_loss > 0 and self.daily_loss >= self.config.risk.stop_on_daily_loss:
             return False, f"Daily loss limit reached ({self.daily_loss:.2f} USDT)"
         
-        # Check balance
+        # Check balance using wallet.get_futures_balance()
         try:
-            balance = await asyncio.to_thread(self.client.account.get_balance)
+            balance = await asyncio.to_thread(self.client.wallet.get_futures_balance)
             available_balance = float(balance.available_balance)
             
             if available_balance < self.config.risk.min_balance:
@@ -159,13 +159,13 @@ class TradeExecutor:
             else:
                 quantity_str = str(int(quantity))
             
-            # Determine side
-            side = "BUY" if signal.signal_type == SignalType.LONG else "SELL"
+            # Determine side - use string value, not Enum
+            side = "LONG" if signal.signal_type == SignalType.LONG else "SHORT"
             
-            # Place order
+            # Place order using correct method names
             if signal.order_type == OrderType.MARKET:
                 order = await asyncio.to_thread(
-                    self.client.orders.place_market,
+                    self.client.orders.create_market_order,
                     symbol=signal.symbol,
                     side=side,
                     quantity=quantity_str,
@@ -173,7 +173,7 @@ class TradeExecutor:
                 )
             else:
                 order = await asyncio.to_thread(
-                    self.client.orders.place_limit,
+                    self.client.orders.create_limit_order,
                     symbol=signal.symbol,
                     side=side,
                     quantity=quantity_str,
@@ -379,3 +379,25 @@ class TradeExecutor:
                 success=False,
                 message=f"Leverage error: {str(e)}"
             )
+    
+    async def validate_credentials(self) -> tuple[bool, str]:
+        """
+        Validate Mudrex API credentials by making a test API call.
+        
+        Returns:
+            (valid, message)
+        """
+        try:
+            balance = await asyncio.to_thread(self.client.wallet.get_futures_balance)
+            available = float(balance.available_balance)
+            return True, f"Valid! Balance: {available:.2f} USDT"
+        except Exception as e:
+            error_msg = str(e)
+            if "401" in error_msg or "Unauthorized" in error_msg.lower():
+                return False, "Invalid API credentials (401 Unauthorized)"
+            elif "403" in error_msg or "Forbidden" in error_msg.lower():
+                return False, "API key lacks required permissions (403 Forbidden)"
+            elif "405" in error_msg:
+                return False, "API endpoint error (405 Method Not Allowed)"
+            else:
+                return False, f"API error: {error_msg}"
