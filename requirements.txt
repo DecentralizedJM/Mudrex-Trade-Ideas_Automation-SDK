@@ -1,6 +1,6 @@
 # Core dependencies
 websockets>=14.0
-# mudrex-trading-sdk - install separately: pip install git+https://github.com/user/mudrex-api-trading-python-sdk.git
+mudrex-trading-sdk @ git+https://github.com/DecentralizedJM/mudrex-api-trading-python-sdk.git
 toml>=0.10.2
 click>=8.1.0
 pydantic>=2.0.0
