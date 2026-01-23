@@ -16,13 +16,46 @@ Professional signal execution SDK that runs on your machine. Your API keys stay 
 
 ## 🚀 Quick Start
 
-### 1. Install
+### Option 1: Easy Installation (Recommended)
 
 ```bash
-pip install git+https://github.com/DecentralizedJM/Mudrex-Trade-Ideas_Automation-SDK.git
+# Clone the repository
+git clone https://github.com/DecentralizedJM/Mudrex-Trade-Ideas_Automation-SDK.git
+cd Mudrex-Trade-Ideas_Automation-SDK
+
+# Run the installation script
+./install.sh
 ```
 
-### 2. Setup (Interactive)
+The script will:
+- ✅ Check Python version (3.11+ required)
+- ✅ Create virtual environment (optional)
+- ✅ Install all dependencies including Mudrex Trading SDK
+- ✅ Create configuration file from example
+
+### Option 2: Using Makefile
+
+```bash
+git clone https://github.com/DecentralizedJM/Mudrex-Trade-Ideas_Automation-SDK.git
+cd Mudrex-Trade-Ideas_Automation-SDK
+make install
+make setup
+```
+
+### Option 3: Manual Installation
+
+```bash
+# Install Mudrex Trading SDK first
+pip install git+https://github.com/DecentralizedJM/mudrex-api-trading-python-sdk.git
+
+# Install SDK dependencies
+pip install -r requirements.txt
+
+# Install the SDK
+pip install -e .
+```
+
+### Setup (Interactive)
 
 ```bash
 signal-sdk setup
@@ -32,10 +65,11 @@ signal-sdk setup
 - 🔑 Mudrex API Secret (from Mudrex Settings → API Management)
 - 💰 Trade Amount per signal (default: 50 USDT)
 - ⚡ Maximum Leverage (default: 10x)
+- 🌐 Broadcaster WebSocket URL
 
 > **Important:** Your API key must have **"Futures Trading"** permission enabled.
 
-### 3. Start
+### Start
 
 ```bash
 signal-sdk start
@@ -133,9 +167,12 @@ signal-sdk doctor
 ```
 
 This checks:
-- ✅ Configuration file
-- ✅ Broadcaster connection
-- ✅ Mudrex API credentials
+- ✅ Configuration file exists and is valid
+- ✅ Broadcaster WebSocket connection (validates actual connection)
+- ✅ Mudrex API credentials (tests authentication)
+- ✅ Detects placeholder URLs and provides guidance
+
+> **Note:** The doctor command will attempt to connect to the broadcaster and validate your Mudrex API credentials. If you see placeholder URLs (like `your-broadcaster.railway.app`), update your `config.toml` with the actual broadcaster URL.
 
 ### Common Errors
 
@@ -217,7 +254,16 @@ signal-sdk setup
 Keep your SDK updated:
 
 ```bash
+# If using virtual environment
+source venv/bin/activate
+
+# Update the SDK
 pip install --upgrade git+https://github.com/DecentralizedJM/Mudrex-Trade-Ideas_Automation-SDK.git
+
+# Or if installed in editable mode
+cd Mudrex-Trade-Ideas_Automation-SDK
+git pull
+pip install -e .
 ```
 
 ---

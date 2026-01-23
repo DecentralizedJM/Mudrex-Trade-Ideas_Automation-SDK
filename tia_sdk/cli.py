@@ -388,27 +388,43 @@ def doctor(config):
     console.print("\n[bold]3. Broadcaster Connection[/bold]")
     console.print(f"   [dim]URL: {cfg.broadcaster.url}[/dim]")
     
-    async def test_broadcaster():
-        try:
-            client = SignalClient(cfg)
-            connected = await client.connect()
-            if connected:
-                await client.disconnect()
-                return True, "Connected successfully"
-            return False, "Connection failed"
-        except Exception as e:
-            return False, str(e)
-    
-    try:
-        success, msg = asyncio.run(test_broadcaster())
-        if success:
-            console.print(f"   [green]✅ {msg}[/green]")
-        else:
-            all_ok = False
-            console.print(f"   [red]❌ {msg}[/red]")
-    except Exception as e:
+    # Check if URL is placeholder
+    if "your-broadcaster" in cfg.broadcaster.url or "example" in cfg.broadcaster.url.lower():
         all_ok = False
-        console.print(f"   [red]❌ Error: {e}[/red]")
+        console.print("   [yellow]⚠️  Placeholder URL detected[/yellow]")
+        console.print("   [dim]Please update config.toml with your actual broadcaster URL[/dim]")
+        console.print("   [dim]Example: wss://your-broadcaster.railway.app/ws[/dim]")
+    else:
+        async def test_broadcaster():
+            try:
+                client = SignalClient(cfg)
+                connected = await client.connect()
+                if connected:
+                    await client.disconnect()
+                    return True, "Connected successfully"
+                return False, "Connection failed"
+            except Exception as e:
+                return False, str(e)
+        
+        try:
+            success, msg = asyncio.run(test_broadcaster())
+            if success:
+                console.print(f"   [green]✅ {msg}[/green]")
+            else:
+                all_ok = False
+                console.print(f"   [red]❌ {msg}[/red]")
+                console.print("   [dim]Troubleshooting:[/dim]")
+                console.print("   • Check your internet connection")
+                console.print("   • Verify the broadcaster URL is correct")
+                console.print("   • The service may be temporarily down")
+        except Exception as e:
+            all_ok = False
+            error_msg = str(e)
+            console.print(f"   [red]❌ Error: {error_msg}[/red]")
+            if "Name or service not known" in error_msg or "Failed to resolve" in error_msg:
+                console.print("   [dim]Troubleshooting:[/dim]")
+                console.print("   • Check if the broadcaster URL is correct")
+                console.print("   • Ensure the broadcaster service is running")
     
     # Check 4: Mudrex API
     console.print("\n[bold]4. Mudrex API[/bold]")
