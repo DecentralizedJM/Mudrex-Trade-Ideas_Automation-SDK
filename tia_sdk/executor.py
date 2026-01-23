@@ -394,10 +394,17 @@ class TradeExecutor:
         except Exception as e:
             error_msg = str(e)
             if "401" in error_msg or "Unauthorized" in error_msg.lower():
-                return False, "Invalid API credentials (401 Unauthorized)"
+                return False, "Invalid API Secret - Please check your API Secret in config.toml"
             elif "403" in error_msg or "Forbidden" in error_msg.lower():
-                return False, "API key lacks required permissions (403 Forbidden)"
+                return False, "API Secret missing 'Futures Trading' permission - Enable it in Mudrex Settings"
             elif "405" in error_msg:
-                return False, "API endpoint error (405 Method Not Allowed)"
+                return False, "Mudrex API temporarily unavailable - Please try again later"
+            elif "aut" in error_msg.lower() or "auth" in error_msg.lower():
+                return False, "Invalid API Secret - Please enter your correct API Secret"
+            elif "connection" in error_msg.lower() or "network" in error_msg.lower():
+                return False, "Connection error - Check your internet connection"
+            elif "timeout" in error_msg.lower():
+                return False, "Connection timeout - Please try again"
             else:
-                return False, f"API error: {error_msg}"
+                # Generic friendly message
+                return False, "Unable to connect to Mudrex - Please check your API Secret and internet connection"

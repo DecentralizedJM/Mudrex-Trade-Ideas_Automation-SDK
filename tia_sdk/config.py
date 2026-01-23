@@ -130,7 +130,9 @@ class Config:
         
         # Mudrex validation - only api_secret is required
         if not self.mudrex.api_secret:
-            errors.append("Mudrex API secret is required")
+            errors.append("Please enter your Mudrex API Secret in config.toml")
+        elif self.mudrex.api_secret.strip() in ["your_mudrex_api_secret", "your-secret", "api_secret", ""]:
+            errors.append("Please enter your actual Mudrex API Secret (not a placeholder)")
         
         # Trading validation
         if self.trading.trade_amount_usdt < self.trading.min_order_value:

@@ -146,20 +146,40 @@ def setup(output):
             except Exception as e:
                 error_msg = str(e)
                 if "401" in error_msg or "Unauthorized" in error_msg.lower():
-                    return False, "Invalid API credentials (401 Unauthorized)"
+                    return False, "Invalid API Secret - Please check your API Secret from Mudrex Settings"
                 elif "403" in error_msg or "Forbidden" in error_msg.lower():
-                    return False, "API key lacks 'Futures Trading' permission (403 Forbidden)"
+                    return False, "API Secret missing 'Futures Trading' permission - Enable it in Mudrex Settings"
+                elif "aut" in error_msg.lower() or "auth" in error_msg.lower():
+                    return False, "Invalid API Secret - Please enter your correct API Secret"
                 else:
-                    return False, f"API error: {error_msg}"
+                    # Try to extract meaningful error message
+                    if "connection" in error_msg.lower() or "network" in error_msg.lower():
+                        return False, "Connection error - Check your internet connection"
+                    elif "timeout" in error_msg.lower():
+                        return False, "Connection timeout - Please try again"
+                    else:
+                        return False, f"Unable to validate API Secret - {error_msg[:100]}"
         
         valid, result = asyncio.run(validate_creds())
         
         if not valid:
-            console.print(f"\n[red]❌ Credential validation failed: {result}[/red]")
-            console.print("\n[bold]Troubleshooting:[/bold]")
-            console.print("• Double-check your API Secret from Mudrex")
-            console.print("• Ensure your API key has 'Futures Trading' permission enabled")
-            console.print("• Try generating a new API key if the issue persists")
+            console.print(f"\n[red]❌ {result}[/red]")
+            console.print("\n[bold]What to do:[/bold]")
+            if "Invalid API Secret" in result:
+                console.print("• Go to Mudrex → Settings → API Management")
+                console.print("• Copy your API Secret (the entire long string)")
+                console.print("• Make sure you copied all characters - no missing parts")
+                console.print("• Run 'signal-sdk setup' again with the correct secret")
+            elif "Futures Trading" in result:
+                console.print("• Go to Mudrex → Settings → API Management")
+                console.print("• Click on your API key to edit it")
+                console.print("• Enable 'Futures Trading' permission")
+                console.print("• Save and try again")
+            else:
+                console.print("• Check your internet connection")
+                console.print("• Verify your API Secret is correct")
+                console.print("• Try again in a few moments")
+            console.print("\n[yellow]Need help? Run 'signal-sdk doctor' for detailed diagnostics[/yellow]")
             sys.exit(1)
         
         console.print(f"[green]✅ Credentials valid! Balance: {result:.2f} USDT[/green]")
@@ -476,18 +496,23 @@ def doctor(config):
                 console.print(f"   [red]❌ {msg}[/red]")
                 
                 # Provide specific troubleshooting
-                if "401" in msg:
-                    console.print("\n   [bold]Troubleshooting:[/bold]")
-                    console.print("   • Double-check your API Secret")
-                    console.print("   • Try regenerating your API key on Mudrex")
-                elif "403" in msg:
-                    console.print("\n   [bold]Troubleshooting:[/bold]")
-                    console.print("   • Enable 'Futures Trading' permission for your API key")
+                if "Invalid API Secret" in msg:
+                    console.print("\n   [bold]What to do:[/bold]")
                     console.print("   • Go to Mudrex → Settings → API Management")
-                elif "405" in msg:
-                    console.print("\n   [bold]Troubleshooting:[/bold]")
-                    console.print("   • This may be a temporary API issue")
-                    console.print("   • Try again in a few minutes")
+                    console.print("   • Copy your API Secret (the entire long string)")
+                    console.print("   • Update config.toml with the correct secret")
+                    console.print("   • Make sure you copied all characters")
+                elif "Futures Trading" in msg:
+                    console.print("\n   [bold]What to do:[/bold]")
+                    console.print("   • Go to Mudrex → Settings → API Management")
+                    console.print("   • Click on your API key to edit it")
+                    console.print("   • Enable 'Futures Trading' permission")
+                    console.print("   • Save and try again")
+                elif "temporarily unavailable" in msg or "Connection" in msg:
+                    console.print("\n   [bold]What to do:[/bold]")
+                    console.print("   • Check your internet connection")
+                    console.print("   • Wait a few minutes and try again")
+                    console.print("   • The Mudrex service may be temporarily down")
         except Exception as e:
             all_ok = False
             console.print(f"   [red]❌ Error: {e}[/red]")
