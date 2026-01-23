@@ -28,9 +28,9 @@ class MudrexConfig(BaseModel):
 class TradingConfig(BaseModel):
     """Trading parameters."""
     enabled: bool = Field(True, description="Enable trade execution")
-    trade_amount_usdt: float = Field(2.0, description="Trade amount per signal")
+    trade_amount_usdt: float = Field(5.0, description="Trade amount per signal (minimum: 5.0 USDT)")
     max_leverage: int = Field(25, description="Maximum leverage")
-    min_order_value: float = Field(1.0, description="Minimum order value")
+    min_order_value: float = Field(5.0, description="Minimum order value (Mudrex requirement: 5.0 USDT)")
     auto_execute: bool = Field(True, description="Auto-execute trades")
 
 
@@ -104,9 +104,9 @@ class Config:
         
         self.trading = TradingConfig(
             enabled=os.getenv("TRADING_ENABLED", "true").lower() == "true",
-            trade_amount_usdt=float(os.getenv("TRADE_AMOUNT", "2.0")),
+            trade_amount_usdt=float(os.getenv("TRADE_AMOUNT", "5.0")),
             max_leverage=int(os.getenv("MAX_LEVERAGE", "25")),
-            min_order_value=float(os.getenv("MIN_ORDER_VALUE", "1.0")),
+            min_order_value=float(os.getenv("MIN_ORDER_VALUE", "5.0")),
             auto_execute=os.getenv("AUTO_EXECUTE", "true").lower() == "true"
         )
         
@@ -136,7 +136,7 @@ class Config:
         
         # Trading validation
         if self.trading.trade_amount_usdt < self.trading.min_order_value:
-            errors.append(f"Trade amount must be >= {self.trading.min_order_value}")
+            errors.append(f"Trade amount must be at least {self.trading.min_order_value} USDT (minimum required by Mudrex)")
         
         return (len(errors) == 0, errors)
     
@@ -156,9 +156,9 @@ class Config:
             },
             "trading": {
                 "enabled": True,
-                "trade_amount_usdt": 2.0,
+                "trade_amount_usdt": 5.0,
                 "max_leverage": 25,
-                "min_order_value": 1.0,
+                "min_order_value": 5.0,
                 "auto_execute": True
             },
             "risk": {

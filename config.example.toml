@@ -22,30 +22,31 @@ api_secret = "your_mudrex_api_secret"
 enabled = true
 
 # Trade amount per signal (in USDT)
-trade_amount_usdt = 50.0
+# Minimum: 5.0 USDT (Mudrex requirement)
+trade_amount_usdt = 5.0
 
 # Maximum leverage to use (will respect signal leverage if lower)
-max_leverage = 10
+max_leverage = 25
 
-# Minimum order value (Mudrex requirement)
-min_order_value = 8.0
+# Minimum order value (Mudrex requirement: 5.0 USDT)
+min_order_value = 5.0
 
 # Auto-execute trades (if false, will log but not execute)
 auto_execute = true
 
 [risk]
 # Maximum number of trades per day
-max_daily_trades = 20
+max_daily_trades = 50
 
 # Maximum number of open positions simultaneously
-max_open_positions = 5
+max_open_positions = 10
 
 # Stop trading if daily loss exceeds this amount (USDT)
 # Set to 0 to disable
-stop_on_daily_loss = 1000.0
+stop_on_daily_loss = 0.0
 
 # Minimum balance required to continue trading (USDT)
-min_balance = 100.0
+min_balance = 10.0
 
 [logging]
 # Log level: DEBUG, INFO, WARNING, ERROR

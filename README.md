@@ -6,11 +6,15 @@ Professional signal execution SDK that runs on your machine. Your API keys stay 
 
 ## 🎯 Benefits
 
-- ✅ **Real-time Signal Execution** - Execute trades as signals arrive
-- ✅ **Your Keys, Your Control** - API keys never leave your machine
-- ✅ **Automatic Management** - SL/TP updates, position closes handled automatically
-- ✅ **2-Minute Setup** - Simple installation and configuration
+- ✅ **Real-time Signal Execution** - Execute trades automatically as signals arrive via WebSocket
+- ✅ **Your Keys, Your Control** - API keys stored only on your machine, never shared
+- ✅ **Automatic Position Management** - SL/TP updates, position closes, leverage changes handled automatically
+- ✅ **Risk Management** - Built-in limits for daily trades, open positions, and loss protection
+- ✅ **2-Minute Setup** - Simple interactive configuration
 - ✅ **Professional Logging** - Complete trade history and audit trail
+- ✅ **Smart Validation** - Immediate API credential validation during setup
+- ✅ **Docker Support** - Optional containerized deployment
+- ✅ **Minimum Trade: $5 USDT** - Low barrier to entry, suitable for all traders
 
 ---
 
@@ -66,8 +70,8 @@ signal-sdk setup
   - ⚠️ **Important:** Copy the ENTIRE secret (usually 40+ characters)
   - ✅ The secret will be validated immediately to catch errors early
   - ✅ Make sure "Futures Trading" permission is enabled
-- 💰 Trade Amount per signal (default: 50 USDT)
-- ⚡ Maximum Leverage (default: 10x)
+- 💰 Trade Amount per signal (default: 5.0 USDT, minimum: 5.0 USDT)
+- ⚡ Maximum Leverage (default: 25x)
 - 🌐 Broadcaster WebSocket URL
 
 > **Important:** 
@@ -144,9 +148,16 @@ After running `signal-sdk setup`, your `config.toml` will be created with:
 api_secret = "your_secret"
 
 [trading]
-trade_amount_usdt = 50.0    # Amount per trade
-max_leverage = 10            # Maximum leverage
+trade_amount_usdt = 5.0     # Amount per trade (minimum: 5.0 USDT)
+max_leverage = 25            # Maximum leverage
+min_order_value = 5.0        # Minimum order value (Mudrex requirement)
 auto_execute = true          # Execute automatically
+
+[risk]
+max_daily_trades = 50        # Maximum trades per day
+max_open_positions = 10      # Maximum simultaneous positions
+stop_on_daily_loss = 0.0    # Stop trading if daily loss exceeds (0=disabled)
+min_balance = 10.0           # Minimum balance required to trade
 ```
 
 You can edit these values anytime by opening `config.toml`.
@@ -155,12 +166,46 @@ You can edit these values anytime by opening `config.toml`.
 
 ## 📊 How It Works
 
-1. **Signal Arrives** - New trading signal published
-2. **SDK Receives** - Your SDK gets signal in real-time via WebSocket
-3. **Validates** - Checks balance and safety limits
-4. **Executes** - Places trade on your Mudrex account
-5. **Manages** - Handles SL/TP, closes, updates automatically
-6. **Logs** - Records everything for your review
+1. **Signal Arrives** - Admin publishes new trading signal via Telegram
+2. **SDK Receives** - Your SDK gets signal in real-time via WebSocket connection
+3. **Validates** - Checks balance, risk limits, and safety parameters
+4. **Executes** - Places trade on your Mudrex account automatically
+5. **Manages** - Handles SL/TP updates, position closes, leverage changes automatically
+6. **Monitors** - Tracks daily trades, open positions, and P&L
+7. **Logs** - Records everything for your review and audit
+
+## ⚙️ Configuration Parameters
+
+### Trading Parameters
+
+| Parameter | Default | Description | Notes |
+|-----------|---------|-------------|-------|
+| `trade_amount_usdt` | 5.0 | Amount per trade in USDT | **Minimum: 5.0 USDT** (Mudrex requirement) |
+| `max_leverage` | 25 | Maximum leverage to use | Will respect signal leverage if lower |
+| `min_order_value` | 5.0 | Minimum order value | Mudrex platform requirement |
+| `auto_execute` | true | Auto-execute trades | Set to false to log only |
+
+### Risk Management Parameters
+
+| Parameter | Default | Description | Notes |
+|-----------|---------|-------------|-------|
+| `max_daily_trades` | 50 | Maximum trades per day | Prevents overtrading |
+| `max_open_positions` | 10 | Maximum simultaneous positions | Limits exposure |
+| `stop_on_daily_loss` | 0.0 | Stop trading if daily loss exceeds (USDT) | Set to 0 to disable |
+| `min_balance` | 10.0 | Minimum balance required to trade | Prevents trading with insufficient funds |
+
+### Logging Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `level` | INFO | Log level (DEBUG, INFO, WARNING, ERROR) |
+| `file` | signal_sdk.log | Log file path |
+| `console` | true | Log to console |
+| `rotate` | true | Rotate log files |
+| `max_bytes` | 10485760 | Max log file size (10MB) |
+| `backup_count` | 5 | Number of backup files |
+
+> **Note:** All parameters can be adjusted in `config.toml` after initial setup.
 
 ---
 
