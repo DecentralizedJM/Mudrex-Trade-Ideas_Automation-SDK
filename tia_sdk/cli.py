@@ -222,10 +222,10 @@ def setup(output):
                 "auto_execute": True
             },
             "risk": {
-                "max_daily_trades": 50,
-                "max_open_positions": 10,
-                "stop_on_daily_loss": 0.0,
-                "min_balance": 1.0
+                "max_daily_trades": 999999,  # Disabled (no limit)
+                "max_open_positions": 999999,  # Disabled (no limit)
+                "stop_on_daily_loss": 0.0,  # Disabled
+                "min_balance": 0.0  # Disabled (no minimum)
             },
             "logging": {
                 "level": "INFO",

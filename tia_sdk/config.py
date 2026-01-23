@@ -35,11 +35,11 @@ class TradingConfig(BaseModel):
 
 
 class RiskConfig(BaseModel):
-    """Risk management parameters."""
-    max_daily_trades: int = Field(50, description="Max trades per day")
-    max_open_positions: int = Field(10, description="Max open positions")
+    """Risk management parameters (disabled by default)."""
+    max_daily_trades: int = Field(999999, description="Max trades per day (disabled: 999999)")
+    max_open_positions: int = Field(999999, description="Max open positions (disabled: 999999)")
     stop_on_daily_loss: float = Field(0.0, description="Stop on daily loss (0=disabled)")
-    min_balance: float = Field(1.0, description="Minimum balance to trade")
+    min_balance: float = Field(0.0, description="Minimum balance to trade (disabled: 0.0)")
 
 
 class LoggingConfig(BaseModel):
@@ -110,7 +110,12 @@ class Config:
             auto_execute=os.getenv("AUTO_EXECUTE", "true").lower() == "true"
         )
         
-        self.risk = RiskConfig()
+        self.risk = RiskConfig(
+            max_daily_trades=999999,
+            max_open_positions=999999,
+            stop_on_daily_loss=0.0,
+            min_balance=0.0
+        )
         self.logging = LoggingConfig(
             level=os.getenv("LOG_LEVEL", "INFO")
         )
@@ -162,10 +167,10 @@ class Config:
                 "auto_execute": True
             },
             "risk": {
-                "max_daily_trades": 50,
-                "max_open_positions": 10,
+                "max_daily_trades": 999999,
+                "max_open_positions": 999999,
                 "stop_on_daily_loss": 0.0,
-                "min_balance": 1.0
+                "min_balance": 0.0
             },
             "logging": {
                 "level": "INFO",

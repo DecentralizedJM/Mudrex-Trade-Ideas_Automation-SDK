@@ -35,18 +35,20 @@ min_order_value = 5.0
 auto_execute = true
 
 [risk]
-# Maximum number of trades per day
-max_daily_trades = 50
+# Risk management parameters (all disabled by default)
+# Maximum number of trades per day (disabled: 999999)
+max_daily_trades = 999999
 
-# Maximum number of open positions simultaneously
-max_open_positions = 10
+# Maximum number of open positions simultaneously (disabled: 999999)
+max_open_positions = 999999
 
 # Stop trading if daily loss exceeds this amount (USDT)
-# Set to 0 to disable
+# Set to 0 to disable (default: disabled)
 stop_on_daily_loss = 0.0
 
 # Minimum balance required to continue trading (USDT)
-min_balance = 10.0
+# Set to 0 to disable (default: disabled)
+min_balance = 0.0
 
 [logging]
 # Log level: DEBUG, INFO, WARNING, ERROR

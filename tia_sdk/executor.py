@@ -57,29 +57,30 @@ class TradeExecutor:
         if not self.config.trading.enabled:
             return False, "Trading is disabled in config"
         
-        # Check daily trade limit
-        if self.daily_trades >= self.config.risk.max_daily_trades:
+        # Risk management checks (all disabled by default - set to very high values)
+        # Check daily trade limit (disabled if >= 999999)
+        if self.config.risk.max_daily_trades < 999999 and self.daily_trades >= self.config.risk.max_daily_trades:
             return False, f"Daily trade limit reached ({self.config.risk.max_daily_trades})"
         
-        # Check open positions limit
-        if len(self.open_positions) >= self.config.risk.max_open_positions:
+        # Check open positions limit (disabled if >= 999999)
+        if self.config.risk.max_open_positions < 999999 and len(self.open_positions) >= self.config.risk.max_open_positions:
             return False, f"Max open positions reached ({self.config.risk.max_open_positions})"
         
-        # Check daily loss limit
+        # Check daily loss limit (disabled if 0.0)
         if self.config.risk.stop_on_daily_loss > 0 and self.daily_loss >= self.config.risk.stop_on_daily_loss:
             return False, f"Daily loss limit reached ({self.daily_loss:.2f} USDT)"
         
-        # Check balance using wallet.get_futures_balance()
-        try:
-            balance = await asyncio.to_thread(self.client.wallet.get_futures_balance)
-            available_balance = float(balance.available)  # mudrex library uses .available
-            
-            if available_balance < self.config.risk.min_balance:
-                return False, f"Balance too low ({available_balance:.2f} < {self.config.risk.min_balance} USDT)"
-        
-        except Exception as e:
-            logger.error(f"Failed to check balance: {e}")
-            return False, f"Failed to check balance: {str(e)}"
+        # Check balance (disabled if 0.0)
+        if self.config.risk.min_balance > 0:
+            try:
+                balance = await asyncio.to_thread(self.client.wallet.get_futures_balance)
+                available_balance = float(balance.available)  # mudrex library uses .available
+                
+                if available_balance < self.config.risk.min_balance:
+                    return False, f"Balance too low ({available_balance:.2f} < {self.config.risk.min_balance} USDT)"
+            except Exception as e:
+                logger.error(f"Failed to check balance: {e}")
+                return False, f"Failed to check balance: {str(e)}"
         
         return True, "OK"
     

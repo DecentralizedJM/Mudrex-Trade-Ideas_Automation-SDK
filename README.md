@@ -154,10 +154,10 @@ min_order_value = 5.0        # Minimum order value (Mudrex requirement)
 auto_execute = true          # Execute automatically
 
 [risk]
-max_daily_trades = 50        # Maximum trades per day
-max_open_positions = 10      # Maximum simultaneous positions
-stop_on_daily_loss = 0.0    # Stop trading if daily loss exceeds (0=disabled)
-min_balance = 10.0           # Minimum balance required to trade
+max_daily_trades = 999999    # Maximum trades per day (disabled: 999999)
+max_open_positions = 999999  # Maximum simultaneous positions (disabled: 999999)
+stop_on_daily_loss = 0.0     # Stop trading if daily loss exceeds (0=disabled)
+min_balance = 0.0            # Minimum balance required to trade (0=disabled)
 ```
 
 You can edit these values anytime by opening `config.toml`.
@@ -185,14 +185,16 @@ You can edit these values anytime by opening `config.toml`.
 | `min_order_value` | 5.0 | Minimum order value | Mudrex platform requirement |
 | `auto_execute` | true | Auto-execute trades | Set to false to log only |
 
-### Risk Management Parameters
+### Risk Management Parameters (All Disabled by Default)
 
 | Parameter | Default | Description | Notes |
 |-----------|---------|-------------|-------|
-| `max_daily_trades` | 50 | Maximum trades per day | Prevents overtrading |
-| `max_open_positions` | 10 | Maximum simultaneous positions | Limits exposure |
-| `stop_on_daily_loss` | 0.0 | Stop trading if daily loss exceeds (USDT) | Set to 0 to disable |
-| `min_balance` | 10.0 | Minimum balance required to trade | Prevents trading with insufficient funds |
+| `max_daily_trades` | 999999 | Maximum trades per day | **Disabled by default** - Set lower value to enable limit |
+| `max_open_positions` | 999999 | Maximum simultaneous positions | **Disabled by default** - Set lower value to enable limit |
+| `stop_on_daily_loss` | 0.0 | Stop trading if daily loss exceeds (USDT) | **Disabled by default** - Set to amount to enable |
+| `min_balance` | 0.0 | Minimum balance required to trade | **Disabled by default** - Set to amount to enable |
+
+> **Note:** All risk management parameters are disabled by default. You have full control over your trading. Adjust these values in `config.toml` if you want to enable any limits.
 
 ### Logging Parameters
 
