@@ -4,7 +4,9 @@
 [broadcaster]
 # Broadcaster WebSocket URL
 # This is a PUBLIC service - anyone can connect via SDK
-url = "wss://your-broadcaster.railway.app/ws"
+# Default production URL: wss://tia-service-broadcaster-production.up.railway.app/ws
+# You can override this with your own broadcaster URL if needed
+url = "wss://tia-service-broadcaster-production.up.railway.app/ws"
 
 # Unique client ID (auto-generated if not provided)
 # client_id = "my-trading-bot-1"

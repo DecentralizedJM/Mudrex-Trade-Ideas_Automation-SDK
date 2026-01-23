@@ -73,6 +73,9 @@ signal-sdk setup
 - 💰 Trade Amount per signal (default: 5.0 USDT, minimum: 5.0 USDT)
 - ⚡ Maximum Leverage (default: 25x)
 - 🌐 Broadcaster WebSocket URL
+  - Default: `wss://tia-service-broadcaster-production.up.railway.app/ws`
+  - You can accept the default or provide your own broadcaster URL
+  - Must start with `ws://` or `wss://`
 
 > **Important:** 
 > - Your API key must have **"Futures Trading"** permission enabled

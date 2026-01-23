@@ -195,6 +195,23 @@ def setup(output):
         
         max_leverage = click.prompt("⚡ Maximum Leverage", type=int, default=25)
         
+        # Broadcaster URL configuration
+        console.print("\n[bold]Broadcaster Connection[/bold]")
+        console.print("[dim]WebSocket URL where signals are broadcast from[/dim]")
+        console.print(f"[dim]Default: {BROADCASTER_URL}[/dim]\n")
+        broadcaster_url = click.prompt(
+            "🌐 Broadcaster WebSocket URL",
+            type=str,
+            default=BROADCASTER_URL,
+            show_default=False
+        )
+        
+        # Validate URL format
+        if not broadcaster_url.startswith(("ws://", "wss://")):
+            console.print("[yellow]⚠️  URL should start with ws:// or wss://[/yellow]")
+            console.print("[yellow]   Using default URL instead[/yellow]")
+            broadcaster_url = BROADCASTER_URL
+        
         # Optional: Telegram ID for notifications
         console.print("\n[bold]Optional Settings[/bold]")
         telegram_id = click.prompt("📱 Telegram ID (for notifications, optional)", type=int, default=0)
@@ -207,7 +224,7 @@ def setup(output):
         import toml
         config_data = {
             "broadcaster": {
-                "url": BROADCASTER_URL,
+                "url": broadcaster_url,
                 "client_id": client_id,
                 "telegram_id": telegram_id if telegram_id > 0 else None
             },
