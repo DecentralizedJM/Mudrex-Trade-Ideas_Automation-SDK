@@ -63,11 +63,19 @@ signal-sdk setup
 
 **You'll be asked for:**
 - 🔑 Mudrex API Secret (from Mudrex Settings → API Management)
+  - ⚠️ **Important:** Copy the ENTIRE secret (usually 40+ characters)
+  - ✅ The secret will be validated immediately to catch errors early
+  - ✅ Make sure "Futures Trading" permission is enabled
 - 💰 Trade Amount per signal (default: 50 USDT)
 - ⚡ Maximum Leverage (default: 10x)
 - 🌐 Broadcaster WebSocket URL
 
-> **Important:** Your API key must have **"Futures Trading"** permission enabled.
+> **Important:** 
+> - Your API key must have **"Futures Trading"** permission enabled
+> - The setup will validate your API secret immediately - if it fails, check:
+>   - You copied the entire secret (no missing characters)
+>   - "Futures Trading" permission is enabled in Mudrex
+>   - The secret hasn't been revoked or regenerated
 
 ### Start
 
@@ -285,3 +293,73 @@ For questions or issues, contact your signal provider or administrator.
 ---
 
 **Ready to start?** Run `signal-sdk setup` and you'll be trading in 2 minutes! 🚀
+
+---
+
+## 🐳 Docker Support (Optional)
+
+For users who prefer containerized deployments:
+
+### Quick Start with Docker
+
+```bash
+# Build the image
+docker build -t mudrex-signal-sdk .
+
+# Create config directory
+mkdir -p config logs
+
+# Run setup (interactive)
+docker run -it --rm \
+  -v $(pwd)/config:/app/config \
+  -v $(pwd)/logs:/app/logs \
+  mudrex-signal-sdk signal-sdk setup
+
+# Start the SDK
+docker run -d --name mudrex-signal-sdk \
+  -v $(pwd)/config:/app/config \
+  -v $(pwd)/logs:/app/logs \
+  --restart unless-stopped \
+  mudrex-signal-sdk
+```
+
+### Using Docker Compose
+
+```bash
+# Create config directory and add your config.toml
+mkdir -p config logs
+
+# Start with docker-compose
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop
+docker-compose down
+```
+
+> **Note:** Make sure to create `config/config.toml` before starting, or run `signal-sdk setup` interactively first.
+
+---
+
+## 📌 Version Pinning (Production)
+
+For production deployments, it's recommended to pin the Mudrex Trading SDK to a specific version:
+
+1. Check the latest stable commit/tag:
+   ```bash
+   git ls-remote --tags https://github.com/DecentralizedJM/mudrex-api-trading-python-sdk.git
+   ```
+
+2. Update `requirements.txt`:
+   ```txt
+   mudrex-api-trading-python-sdk @ git+https://github.com/DecentralizedJM/mudrex-api-trading-python-sdk.git@<commit-hash>
+   ```
+
+3. Reinstall:
+   ```bash
+   pip install -r requirements.txt --force-reinstall
+   ```
+
+This prevents breaking changes from upstream updates.

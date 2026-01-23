@@ -105,9 +105,34 @@ def setup(output):
         console.print("[bold]Mudrex API Credentials[/bold]")
         console.print("[dim]Get these from Mudrex Settings → API Management[/dim]")
         console.print("[dim]Required permissions: Futures Trading[/dim]\n")
+        console.print("[yellow]⚠️  Important:[/yellow]")
+        console.print("   • Your API Secret is a long string (usually 40+ characters)")
+        console.print("   • Copy the ENTIRE secret - don't miss any characters")
+        console.print("   • Make sure 'Futures Trading' permission is enabled")
+        console.print("   • The secret will be validated immediately\n")
         
-        # Prompt for Mudrex credentials
-        mudrex_api_secret = click.prompt("🔑 Mudrex API Secret", type=str, hide_input=True)
+        # Prompt for Mudrex credentials with validation
+        while True:
+            mudrex_api_secret = click.prompt("🔑 Mudrex API Secret", type=str, hide_input=True)
+            
+            # Basic format validation
+            if not mudrex_api_secret or len(mudrex_api_secret.strip()) < 10:
+                console.print("[red]❌ API Secret appears too short. Please check and try again.[/red]")
+                console.print("[dim]API Secrets are typically 40+ characters long[/dim]\n")
+                if not click.confirm("Try again?", default=True):
+                    console.print("[yellow]Setup cancelled[/yellow]")
+                    sys.exit(0)
+                continue
+            
+            # Check for common mistakes
+            if mudrex_api_secret.strip() in ["your_mudrex_api_secret", "your-secret", "api_secret", ""]:
+                console.print("[red]❌ Please enter your actual API Secret, not a placeholder[/red]\n")
+                if not click.confirm("Try again?", default=True):
+                    console.print("[yellow]Setup cancelled[/yellow]")
+                    sys.exit(0)
+                continue
+            
+            break
         
         # Validate credentials immediately
         console.print("\n[dim]Validating credentials...[/dim]")

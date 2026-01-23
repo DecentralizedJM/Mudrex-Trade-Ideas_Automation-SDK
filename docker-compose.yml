@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  signal-sdk:
+    build: .
+    container_name: mudrex-signal-sdk
+    restart: unless-stopped
+    volumes:
+      # Mount config directory (create config.toml here)
+      - ./config:/app/config
+      # Mount logs directory
+      - ./logs:/app/logs
+    environment:
+      # Optional: Override config path
+      - CONFIG_PATH=/app/config/config.toml
+    # Uncomment to run in interactive mode for setup
+    # command: signal-sdk setup
+    # stdin_open: true
+    # tty: true

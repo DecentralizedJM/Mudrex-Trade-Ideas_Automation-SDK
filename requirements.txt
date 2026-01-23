@@ -1,6 +1,10 @@
 # Core dependencies
 websockets>=14.0
-mudrex-trading-sdk @ git+https://github.com/DecentralizedJM/mudrex-api-trading-python-sdk.git
+# Mudrex Trading SDK - pinned to specific commit for stability
+# To update: Check https://github.com/DecentralizedJM/mudrex-api-trading-python-sdk for latest stable version
+mudrex-api-trading-python-sdk @ git+https://github.com/DecentralizedJM/mudrex-api-trading-python-sdk.git
+# For production, pin to specific commit:
+# mudrex-api-trading-python-sdk @ git+https://github.com/DecentralizedJM/mudrex-api-trading-python-sdk.git@<commit-hash>
 toml>=0.10.2
 click>=8.1.0
 pydantic>=2.0.0
